@@ -5,6 +5,7 @@ import {Artifact} from '@aws-cdk/aws-codepipeline';
 import {GitHubSourceAction} from '@aws-cdk/aws-codepipeline-actions';
 import {StringParameter} from '@aws-cdk/aws-ssm';
 import {EksClusterStage} from 'eks-for-prod';
+import {BuildEnvironmentVariableType} from '@aws-cdk/aws-codebuild';
 
 export class AwsResourcesStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -34,7 +35,17 @@ export class AwsResourcesStack extends cdk.Stack {
       synthAction: SimpleSynthAction.standardNpmSynth({
         cloudAssemblyArtifact,
         sourceArtifact,
-        subdirectory: subdirectory || undefined
+        subdirectory: subdirectory || undefined,
+        environmentVariables: {
+          CDK_DEFAULT_ACCOUNT: {
+            type: BuildEnvironmentVariableType.PLAINTEXT,
+            value: process.env.CDK_DEFAULT_ACCOUNT
+          },
+          CDK_DEFAULT_REGION: {
+            type: BuildEnvironmentVariableType.PLAINTEXT,
+            value: process.env.CDK_DEFAULT_REGION
+          }
+        }
       })
     });
 
